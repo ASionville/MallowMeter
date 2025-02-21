@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
 
 def rgb_to_lab(image):
     # Convertir une image RGB en Lab
@@ -24,19 +25,9 @@ def rgb_to_lab(image):
 
     return torch.stack([l, a, b])
 
-def co_occurrence_matrix(channel, distances=[1], angles=[0]):
+def co_occurrence_matrix(channel):
     # Calculer la matrice de co-occurrence pour un canal donné
-    max_val = int(channel.max().item() + 1)
-    comat = torch.zeros((max_val, max_val), dtype=torch.float32, device=channel.device)
-
-    for d in distances:
-        for angle in angles:
-            dx = int(d * torch.cos(torch.tensor(angle)))
-            dy = int(d * torch.sin(torch.tensor(angle)))
-            shifted = F.pad(channel, (dx, dx, dy, dy), mode='constant', value=0)
-            for i in range(channel.size(0)):
-                for j in range(channel.size(1)):
-                    comat[channel[i, j], shifted[i + dy, j + dx]] += 1
+    comat = torch.matmul(channel, channel.t())
 
     return comat
 
@@ -44,19 +35,16 @@ def extract_features(images):
     features = []
     for image in images:
         lab_image = rgb_to_lab(image)
-        l, a, b = lab_image[0], lab_image[1], lab_image[2]
-
-        # Étendue, min/max, moments (skewness)
-        l_range = l.max() - l.min()
-        a_range = a.max() - a.min()
-        b_range = b.max() - b.min()
+        l, b = lab_image[0], lab_image[2]
 
         l_min, l_max = l.min(), l.max()
-        a_min, a_max = a.min(), a.max()
         b_min, b_max = b.min(), b.max()
 
+        # Étendue, min/max, moments (skewness)
+        l_range = l_max - l_min
+        b_range = b_max - b_min
+
         l_skewness = ((l - l.mean()) ** 3).mean() / (l.std() ** 3)
-        a_skewness = ((a - a.mean()) ** 3).mean() / (a.std() ** 3)
         b_skewness = ((b - b.mean()) ** 3).mean() / (b.std() ** 3)
 
         # Moyenne et écart-type des composantes L et b
@@ -67,35 +55,28 @@ def extract_features(images):
         l_comat = co_occurrence_matrix(l)
         b_comat = co_occurrence_matrix(b)
 
-        # Contraste, homogénéité, entropie, énergie
-        l_contrast = (l_comat * (torch.arange(l_comat.size(0), device=l.device).view(-1, 1) - torch.arange(l_comat.size(1), device=l.device).view(1, -1)) ** 2).sum()
-        b_contrast = (b_comat * (torch.arange(b_comat.size(0), device=b.device).view(-1, 1) - torch.arange(b_comat.size(1), device=b.device).view(1, -1)) ** 2).sum()
+        # Contraste, homogénéité, entropie, énergie (Tamura)
+        l_contrast = (l_comat * (torch.arange(l_comat.size(0)) ** 2).float()).sum()
+        b_contrast = (b_comat * (torch.arange(b_comat.size(0)) ** 2).float()).sum()
 
-        l_homogeneity = (l_comat / (1 + (torch.arange(l_comat.size(0), device=l.device).view(-1, 1) - torch.arange(l_comat.size(1), device=l.device).view(1, -1)) ** 2)).sum()
-        b_homogeneity = (b_comat / (1 + (torch.arange(b_comat.size(0), device=b.device).view(-1, 1) - torch.arange(b_comat.size(1), device=b.device).view(1, -1)) ** 2)).sum()
+        l_homogeneity = (l_comat / (1 + (torch.arange(l_comat.size(0)) ** 2).float())).sum()
+        b_homogeneity = (b_comat / (1 + (torch.arange(b_comat.size(0)) ** 2).float())).sum()
 
         l_entropy = -(l_comat * torch.log(l_comat + 1e-10)).sum()
-        b_entropy = -(b_comat * torch.log(b_comat + 1e-10)).sum()
+        # b_entropy = -(b_comat * torch.log(b_comat + 1e-10)).sum()
 
         l_energy = (l_comat ** 2).sum()
         b_energy = (b_comat ** 2).sum()
 
         features.append(torch.tensor([
-            l_range, a_range, b_range,
-            l_min, l_max, a_min, a_max, b_min, b_max,
-            l_skewness, a_skewness, b_skewness,
+            l_range, b_range,
+            l_min, l_max, b_min, b_max,
+            l_skewness, b_skewness,
             l_mean, l_std, b_mean, b_std,
             l_contrast, b_contrast,
             l_homogeneity, b_homogeneity,
-            l_entropy, b_entropy,
+            l_entropy,
             l_energy, b_energy
-        ]))
+        ], device=image.device))
 
     return torch.stack(features)
-
-if __name__ == "__main__":
-    from load_database import load_dataset
-    dataset_path = "dataset/"
-    data, labels = load_dataset(dataset_path)
-    features = extract_features(data)
-    print(f"Extracted features for {len(features)} images")
