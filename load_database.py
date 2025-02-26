@@ -37,9 +37,8 @@ def rgb_to_lab(image):
 
     return torch.stack([l, a, b])
 
-def load_dataset(dataset_path):
+def load_dataset(dataset_path, num_images_per_class=40):
     data = []
-    masks = []
     labels = []
     ids = []
     transform = transforms.Compose([
@@ -47,25 +46,32 @@ def load_dataset(dataset_path):
         transforms.ToTensor()
     ])
 
+    class_files = {}
     for filename in os.listdir(dataset_path):
         if filename.endswith(".png"):
-            # Extraire le numéro de l'échantillon et la classe à partir du nom du fichier
             parts = filename.split('_')
-            sample_id = int(parts[0][3:])
-            class_label = int(parts[1][0])
+            class_label = int(parts[1])
+            if class_label not in class_files:
+                class_files[class_label] = []
+            class_files[class_label].append(filename)
 
-            # Charger l'image et appliquer les transformations
+    for class_label, files in class_files.items():
+        selected_files = np.random.choice(files, num_images_per_class, replace=False)
+        for filename in selected_files:
+            parts = filename.split('_')
+            sample_id = int(parts[2].split('.')[0])
+
             image = Image.open(os.path.join(dataset_path, filename))
             image = transform(image)
-            image = rgb_to_lab(image)  # Convertir l'image en Lab
+            image = rgb_to_lab(image)
 
             data.append(image)
             labels.append(class_label)
-            ids.append(sample_id)  # Ajouter l'id à la liste
+            ids.append(sample_id)
 
     data = torch.stack(data)
     labels = torch.tensor(labels, dtype=torch.long)
-    ids = torch.tensor(ids, dtype=torch.long)  # Convertir ids en tenseur
+    ids = torch.tensor(ids, dtype=torch.long)
     return data, labels, ids
 
 def split_dataset(data, labels, ids, test_size=0.2, seed=42):
