@@ -1,39 +1,55 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import torch
+import numpy as np
 from load_database import load_dataset
-from extract_features import extract_features
+from utils import load_or_compute_features
 
 def verif_bdd():
     dataset_path = "dataset/"
     data, labels, ids = load_dataset(dataset_path)
     print("Données chargées avec succès")
-    features = extract_features(data)
-    print("Caractéristiques extraites avec succès")
+    
+    # Utiliser load_or_compute_features pour éviter de recalculer si le fichier existe
+    # et récupérer les labels depuis le fichier pkl
+    features, labels_from_pkl = load_or_compute_features(data, labels, force_recompute=False)
+    print("Caractéristiques extraites ou chargées avec succès")
+    
+    # Utiliser les labels du fichier pkl au lieu des labels chargés via load_dataset
+    labels = labels_from_pkl
+    print(f"Utilisation des labels depuis le fichier de features: {len(labels)} échantillons")
 
+    # Liste mise à jour des caractéristiques avec leurs indices et titres corrects
     feature_params = {
-        0: ('l_range', 'Etendue L'),
-        1: ('b_range', 'Etendue b'),
-        2: ('l_min', 'Min L'),
-        3: ('l_max', 'Max L'),
-        4: ('b_min', 'Min b'),
-        5: ('b_max', 'Max b'),
-        6: ('l_skewness', 'Skewness L'),
-        7: ('b_skewness', 'Skewness b'),
-        8: ('l_mean', 'Moyenne L'),
-        9: ('l_std', 'Ecart-type L'),
-        10: ('b_mean', 'Moyenne b'),
-        11: ('b_std', 'Ecart-type b'),
-        12: ('l_contrast', 'Contraste L'),
-        13: ('b_contraste', 'Contraste b'),
-        14: ('l_homogeneity', 'Homogénéité L'),
-        15: ('b_homogeneity', 'Homogénéité b'),
-        16: ('l_entropy', 'Entropie L'),
-        17: ('l_energy', 'Energie L'),
-        18: ('b_energy', 'Energie b')
+        # 0: ('l_range', 'Étendue L'),
+        # 1: ('b_range', 'Étendue b'),
+        # 2: ('l_min', 'Minimum L'),
+        # 3: ('l_max', 'Maximum L'),
+        # 4: ('b_min', 'Minimum b'),
+        # 5: ('b_max', 'Maximum b'),
+        # 6: ('l_skewness', 'Skweness L'),
+        0: ('b_skewness', 'Skewness b'),
+        # 8: ('l_mean', 'Moyenne L'),
+        1: ('l_std', 'Écart-type L'),
+        2: ('b_mean', 'Moyenne b'),
+        3: ('b_std', 'Écart-type b'),
+        # 12: ('l_contrast_h', 'Contraste L'),
+        4: ('b_contrast', 'Contraste b'),
+        5: ('l_homogeneity', 'Homogénéité L'),
+        6: ('b_homogeneity', 'Homogénéité b'),
+        7: ('l_entropy', 'Entropie L'),
+        8: ('b_entropy', 'Entropie b'),
+        9: ('l_energy', 'Énergie L'),
+        10: ('b_energy', 'Énergie b'),
     }
 
-    for index, (feature_name, title) in feature_params.items():
+    # On peut limiter le nombre de graphiques pour éviter de générer trop d'images
+    # Par exemple, afficher seulement les caractéristiques principales
+    selected_features = range(11)
+    
+    for index in selected_features:
+        feature_name, title = feature_params[index]
         plot_feature_boxplot(features, labels, index, feature_name, title)
 
 def plot_feature_boxplot(features, labels, feature_index, feature_name, title):
@@ -46,7 +62,7 @@ def plot_feature_boxplot(features, labels, feature_index, feature_name, title):
     palette = {0: '#f0ead2', 1: '#f4d35e', 2: '#f77f00', 3: '#d62828'}
     sns.boxplot(x='Classe', y=f'{title}', data=df, hue='Classe', palette=palette, legend=False)
     plt.title(f'Boites à moustaches : {title}')
-    plt.savefig(f'boites_a_moustaches/{feature_name}.png')
+    plt.savefig(f'evaluation/boites_a_moustaches/{feature_name}.png')
     plt.close()
 
 if __name__ == "__main__":
