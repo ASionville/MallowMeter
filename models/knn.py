@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def distance_matrix(x, y=None, p=2):
-    # Calculer la matrice de distance entre les points x et y en utilisant la distance de Minkowski
+    # Calculer la matrice de distance entre les points x et y en utilisant la norme p
     y = x if y is None else y
     return torch.cdist(x, y, p=p)
 
