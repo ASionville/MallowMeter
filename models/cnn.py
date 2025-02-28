@@ -4,7 +4,7 @@ import torch.nn as nn
 NUM_LAYERS = 2
 LAYER_WIDTHS = [32, 64]
 ACTIVATION_FUNCTION = nn.ReLU
-INPUT_DIM = (1, 28, 28)
+INPUT_DIM = (3, 512, 512)
 NUM_CLASSES = 10
 
 class CNN(nn.Module):
