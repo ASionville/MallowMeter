@@ -49,6 +49,13 @@ def extract_features(images):
         l, b = lab_image[0], lab_image[2]
 
         # Étendue, min/max, moments (skewness)
+        # l_range = l.max() - l.min()
+        # b_range = b.max() - b.min()
+        
+        # l_min, l_max = l.min(), l.max()
+        # b_min, b_max = b.min(), b.max()
+
+        # l_skewness = ((l - l.mean()) ** 3).mean() / (l.std() ** 3)
         b_skewness = ((b - b.mean()) ** 3).mean() / (b.std() ** 3)
 
         # Moyenne et écart-type des composantes L et b
@@ -56,14 +63,21 @@ def extract_features(images):
         b_mean, b_std = b.mean(), b.std()
 
         # Matrices de co-occurrence
-        l_comat_1h = co_occurrence_matrix(l, distance=1, direction="horizontal")
+        l_comat_1 = co_occurrence_matrix(l, distance=1, direction="horizontal")
+        b_comat_1 = co_occurrence_matrix(b, distance=1, direction="horizontal")
 
         # Contraste, homogénéité, entropie, énergie (Tamura)
-        l_contrast = (l_comat_1h * (torch.arange(l_comat_1h.size(0)) ** 2).float()).sum()
+        # l_contrast = (l_comat_1 * (torch.arange(l_comat_1.size(0)) ** 2).float()).sum()
+        b_contrast = (b_comat_1 * (torch.arange(b_comat_1.size(0)) ** 2).float()).sum()
 
-        l_homogeneity = (l_comat_1h / (1 + (torch.arange(l_comat_1h.size(0)) ** 2).float())).sum()
+        lomogeneity = (l_comat_1 / (1 + (torch.arange(l_comat_1.size(0)) ** 2).float())).sum()
+        bomogeneity = (b_comat_1 / (1 + (torch.arange(b_comat_1.size(0)) ** 2).float())).sum()
 
-        l_entropy = -(l_comat_1h * torch.log(l_comat_1h + 1e-10)).sum()
+        l_entropy = -(l_comat_1 * torch.log(l_comat_1 + 1e-10)).sum()
+        b_entropy = -(b_comat_1 * torch.log(b_comat_1 + 1e-10)).sum()
+
+        l_energy = (l_comat_1 ** 2).sum()
+        b_energy = (b_comat_1 ** 2).sum()
 
         features.append(torch.tensor([
             # l_range,
@@ -74,17 +88,18 @@ def extract_features(images):
             # b_max,
             # l_skewness,
             b_skewness,
-            l_mean,
+            # l_mean,
             l_std,
             b_mean,
             b_std,
-            l_contrast,
-            # b_contrast,
-            l_homogeneity,
-            # b_homogeneity,
+            # l_contrast,
+            b_contrast,
+            lomogeneity,
+            bomogeneity,
             l_entropy,
-            # l_energy,
-            # b_energy
+            b_entropy,
+            l_energy,
+            b_energy,
         ], device=image.device))
 
     return torch.stack(features)
