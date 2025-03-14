@@ -57,7 +57,7 @@ def calculate_precision_recall_jaccard(conf_matrix):
         
     return precision, recall, jaccard
 
-def plot_confusion_matrix(conf_matrix, class_names=None, save_path=None):
+def plot_confusion_matrix(conf_matrix, class_names=None, save_path=None, normalized=False, title='Matrice de confusion'):
     """
     Trace et sauvegarde une matrice de confusion
     
@@ -65,14 +65,20 @@ def plot_confusion_matrix(conf_matrix, class_names=None, save_path=None):
         conf_matrix: La matrice de confusion
         class_names: Les noms des classes (optionnel)
         save_path: Chemin pour sauvegarder l'image (optionnel)
+        normalized: Si True, les valeurs sont affichées en proportions (format pourcentage)
+        title: Titre de la figure
     """
     plt.figure(figsize=(10, 8))
-    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
+    
+    # Format des annotations : entiers ou pourcentage selon normalized
+    fmt = '.2%' if normalized else 'd'
+    
+    sns.heatmap(conf_matrix, annot=True, fmt=fmt, cmap='Blues',
                 xticklabels=class_names if class_names else "auto",
                 yticklabels=class_names if class_names else "auto")
     plt.ylabel('Vraie classe')
     plt.xlabel('Classe prédite')
-    plt.title('Matrice de confusion')
+    plt.title(title)
     
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -80,6 +86,29 @@ def plot_confusion_matrix(conf_matrix, class_names=None, save_path=None):
         plt.close()
     else:
         plt.show()
+
+def get_normalized_confusion_matrix(targets, predictions, num_classes):
+    """
+    Calcule une matrice de confusion normalisée (proportions par ligne)
+    
+    Args:
+        targets: Les valeurs cibles réelles
+        predictions: Les prédictions du modèle
+        num_classes: Nombre de classes
+        
+    Returns:
+        array: Matrice de confusion normalisée
+    """
+    # Calculer la matrice de confusion brute
+    conf_matrix = confusion_matrix(targets, predictions, labels=range(num_classes))
+    
+    # Normaliser par ligne (proportions par classe réelle)
+    row_sums = conf_matrix.sum(axis=1, keepdims=True)
+    # Éviter la division par zéro
+    row_sums = np.where(row_sums == 0, 1, row_sums)
+    normalized_conf_matrix = conf_matrix / row_sums
+    
+    return normalized_conf_matrix
 
 def evaluate_model(predictions, targets, class_names=None, save_dir=None, model_name="modele"):
     """
@@ -102,13 +131,14 @@ def evaluate_model(predictions, targets, class_names=None, save_dir=None, model_
         targets = targets.cpu().numpy()
     
     # Nombre de classes uniques
-    num_classes = len(np.unique(targets))
+    num_classes = len(np.unique(np.concatenate((targets, predictions))))
     
     # Calcul de l'exactitude
     accuracy = calculate_accuracy(predictions, targets)
     
-    # Calcul de la matrice de confusion
+    # Calcul des matrices de confusion (brute et normalisée)
     conf_matrix = confusion_matrix(targets, predictions, labels=range(num_classes))
+    norm_conf_matrix = get_normalized_confusion_matrix(targets, predictions, num_classes)
     
     # Calcul des métriques par classe
     precision, recall, jaccard = calculate_precision_recall_jaccard(conf_matrix)
@@ -118,26 +148,57 @@ def evaluate_model(predictions, targets, class_names=None, save_dir=None, model_
         # Création du répertoire si nécessaire
         os.makedirs(os.path.join(save_dir), exist_ok=True)
         
-        # Sauvegarde de la matrice de confusion
+        # Sauvegarde de la matrice de confusion brute
         save_path = os.path.join(save_dir, f"{model_name}_confusion_matrix.png")
+        plot_confusion_matrix(
+            conf_matrix, 
+            class_names=class_names, 
+            save_path=save_path,
+            normalized=False,
+            title='Matrice de confusion (effectifs)'
+        )
         
-        plt.figure(figsize=(10, 8))
-        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
-                    xticklabels=class_names if class_names else range(num_classes),
-                    yticklabels=class_names if class_names else range(num_classes))
-        plt.ylabel('Vraie classe')
-        plt.xlabel('Classe prédite')
-        plt.title('Matrice de confusion')
+        # Sauvegarde de la matrice de confusion normalisée
+        norm_save_path = os.path.join(save_dir, f"{model_name}_normalized_confusion_matrix.png")
+        plot_confusion_matrix(
+            norm_conf_matrix, 
+            class_names=class_names, 
+            save_path=norm_save_path,
+            normalized=True,
+            title='Matrice de confusion (proportions)'
+        )
         
-        plt.savefig(save_path, bbox_inches='tight')
-        plt.close()
-        
-        print(f"Matrice de confusion sauvegardée dans {save_path}")
+        print(f"Matrices de confusion sauvegardées dans {save_dir}")
     
     return {
         'accuracy': accuracy,
         'precision_per_class': precision,
         'recall_per_class': recall,
         'jaccard_per_class': jaccard,
-        'confusion_matrix': conf_matrix
+        'confusion_matrix': conf_matrix,
+        'normalized_confusion_matrix': norm_conf_matrix
     }
+
+def plot_average_confusion_matrix(confusion_matrices, class_names=None, save_path=None, title='Matrice de confusion moyenne'):
+    """
+    Trace et sauvegarde une matrice de confusion moyenne
+    
+    Args:
+        confusion_matrices: Liste de matrices de confusion normalisées
+        class_names: Les noms des classes (optionnel)
+        save_path: Chemin pour sauvegarder l'image (optionnel)
+        title: Titre de la figure
+    """
+    # Calculer la moyenne des matrices
+    avg_conf_matrix = np.mean(confusion_matrices, axis=0)
+    
+    # Tracer la matrice moyenne
+    plot_confusion_matrix(
+        avg_conf_matrix, 
+        class_names=class_names, 
+        save_path=save_path, 
+        normalized=True,
+        title=title
+    )
+    
+    return avg_conf_matrix

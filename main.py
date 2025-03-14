@@ -1,12 +1,13 @@
 from load_database import load_dataset, split_dataset, enrichissement_dataset
 from utils import load_or_compute_features, custom_split
 from models.knn import KNN
-from criteres_evaluation import evaluate_model
+from criteres_evaluation import evaluate_model, plot_average_confusion_matrix
 import numpy as np
 import torch
 import os
 from tqdm import tqdm
 import csv
+from collections import defaultdict
 
 def run_test(seeds=range(10), enrichissements=[0], ratios_test=[0.1, 0.2, 0.3, 0.4, 0.5], k_values=[3, 5, 7], force_recompute=False, log=True):
     """
@@ -22,6 +23,9 @@ def run_test(seeds=range(10), enrichissements=[0], ratios_test=[0.1, 0.2, 0.3, 0
     """
     dataset_path = "dataset/"
     results = []
+    
+    # Dictionnaires pour stocker les matrices de confusion pour chaque configuration
+    conf_matrices = defaultdict(list)  # clé: (k, ratio), valeur: liste de matrices de confusion normalisées
     
     # Charger les données
     data, labels, ids = load_dataset(dataset_path, num_images_per_class=40)
@@ -63,11 +67,14 @@ def run_test(seeds=range(10), enrichissements=[0], ratios_test=[0.1, 0.2, 0.3, 0
                         predictions=predictions,
                         targets=test_labels,
                         class_names=class_names,
-                        save_dir="evaluation",
+                        save_dir="evaluation/individual" if log else None,  # Sauvegarder individuellement uniquement si log=True
                         model_name=model_name
                     )
                     
                     accuracy = eval_results['accuracy']
+                    
+                    # Stocker la matrice de confusion normalisée pour ce test
+                    conf_matrices[(k, ratio_test)].append(eval_results['normalized_confusion_matrix'])
                     
                     if log:
                         print(f"Seed: {seed}, Ratio Test: {ratio_test}, K: {k}, Exactitude: {accuracy:.4f}")
@@ -83,12 +90,29 @@ def run_test(seeds=range(10), enrichissements=[0], ratios_test=[0.1, 0.2, 0.3, 0
     # Moyenner les résultats sur les seeds
     results_array = np.array(results)
     mean_results = []
+    
+    # Créer le répertoire pour les matrices moyennes
+    os.makedirs("evaluation/average", exist_ok=True)
+    
     for ratio_test in ratios_test:
         for k in k_values:
+            # Calculer l'exactitude moyenne
             mask = (results_array[:, 1] == ratio_test) & (results_array[:, 2] == k)
             if np.any(mask):
                 mean_accuracy = results_array[mask][:, 3].mean()
                 mean_results.append([ratio_test, k, mean_accuracy])
+                
+                # Calculer et sauvegarder la matrice de confusion moyenne pour ce couple (k, ratio)
+                if (k, ratio_test) in conf_matrices:
+                    avg_conf_save_path = f"evaluation/average/knn_k{k}_ratio{ratio_test}_avg_conf_matrix.png"
+                    avg_title = f"Matrice de confusion moyenne - k = {k}, ratio {int(100-ratio_test*100)}/{int(ratio_test*100)}"
+                    avg_conf_matrix = plot_average_confusion_matrix(
+                        conf_matrices[(k, ratio_test)], 
+                        class_names=class_names,
+                        save_path=avg_conf_save_path,
+                        title=avg_title
+                    )
+                    print(f"Matrice de confusion moyenne pour k={k}, ratio={ratio_test} sauvegardée")
     
     # Afficher les résultats moyens
     print("\nRésultats moyens:")
@@ -96,19 +120,19 @@ def run_test(seeds=range(10), enrichissements=[0], ratios_test=[0.1, 0.2, 0.3, 0
         print(f"Ratio Test: {ratio_test}, K: {k}, Précision Moyenne: {mean_accuracy:.4f}")
     
     # Écrire les résultats dans un fichier CSV
-    with open('test_results.csv', mode='w', newline='') as file:
+    with open('results.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Seed", "Ratio Test", "K", "Accuracy"])
         writer.writerows(results)
     
-    print(f"Résultats enregistrés dans test_results.csv")
+    print(f"Résultats enregistrés dans results.csv")
 
 if __name__ == "__main__":
     run_test(
-        seeds=range(10),
+        seeds=range(100),
         enrichissements=[0],
-        ratios_test=[0.1],
-        k_values=[5],
+        ratios_test=[0.1, 0.2, 0.3],
+        k_values=[3, 5, 7],
         force_recompute=False,
         log=False
     )
