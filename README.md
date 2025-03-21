@@ -19,7 +19,7 @@ Notre mission : sauver les soirées camping d'une catastrophe marshmallowesque e
 
 ### Prérequis
 - Python 3.7 ou supérieur
-- Pour les librairies, voir `requirements.txt`
+- Pour les librairies, voir [`requirements.txt`](requirements.txt)
 
 ### Configuration
 
@@ -31,7 +31,7 @@ cd MallowMeter
 
 2. Installez les dépendances :
 ```bash
-pip install -r requirements.txt
+pip install -r [`requirements.txt`](requirements.txt)
 ```
 
 ## Utilisation
@@ -92,12 +92,13 @@ python main.py --model cnn --enrichissement 30 --patience 10 --num_epochs 100
 ## Modèles utilisés
 
 ### KNN (K-Nearest Neighbors)
-Le modèle KNN utilise des caractéristiques extraites des images :
+Le modèle KNN utilise des caractéristiques extraites des images en Lab :
 1. **Skewness b** : Asymétrie de la composante b
 2. **Écart-type L** : Variabilité de la composante L
 3. **Moyenne b** : Moyenne de la composante b
 4. **Écart-type b** : Variabilité de la composante b
 5. **Contraste b** : Contraste de la composante b
+6. **Homogénéité L** : Homogénéité de la composante L
 6. **Homogénéité b** : Homogénéité de la composante b
 7. **Entropie L** : Mesure de désordre de la composante L
 8. **Entropie b** : Mesure de désordre de la composante b
