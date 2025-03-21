@@ -127,10 +127,10 @@ Les performances varient selon les paramètres utilisés :
 ## Crédits
 
 Ce projet a été réalisé par :
-- Maxime JOURNOUD
-- Lucas LESCURE
-- Aubin SIONVILLE
-- Ruben VERCHERE
+- [Maxime JOURNOUD](https://github.com/DCucube)
+- [Lucas LESCURE](https://github.com/FluffLescure)
+- [Aubin SIONVILLE](https://github.com/ASionville)
+- [Ruben VERCHERE](https://github.com/RubenV)
 
 
 Nous tenons à remercier l'équipe pédagogique de TSE pour leur accompagnement
