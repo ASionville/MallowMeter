@@ -7,11 +7,11 @@
 
 ## Contexte et objectifs
 
-Avez-vous déjà fixé un marshmallow en vous demandant : "Mais QUEL est son degré exact de cuisson?" Nous aussi ! C'est pourquoi nous avons consacré des années de recherche intensive (bon, peut-être quelques semaines) à résoudre ce problème crucial qui empêchait l'humanité d'avancer.
+Avez-vous déjà fixé un marshmallow en vous demandant : "Mais quel est son degré exact de cuisson ??" Nous aussi ! C'est pourquoi nous avons consacré des années de recherche intensive (bon, peut-être quelques semaines) à résoudre ce problème crucial qui empêchait l'humanité d'avancer.
 
-MallowMeter est né d'une question existentielle : pourquoi certains marshmallows sont parfaitement dorés tandis que d'autres finissent carbonisés comme s'ils avaient tenté de voyager trop près du soleil ? Notre équipe de "mallowlogues" a donc développé un système révolutionnaire capable de classifier automatiquement les marshmallows en 4 catégories cruciales (de 0 "blanc comme neige" à 3 "transformé en charbon").
+MallowMeter est né d'une question existentielle : pourquoi certains marshmallows sont parfaitement dorés tandis que d'autres finissent carbonisés comme s'ils avaient tenté de voyager trop près du soleil ? Notre équipe de "mallowlogues" a donc développé un système révolutionnaire capable de classifier automatiquement les marshmallows en 4 catégories cruciales (de 0 "blanc comme neige" à 3 "carbonisé").
 
-En utilisant des algorithmes de vision par ordinateur plus sophistiqués que nécessaire, nous analysons méticuleusement la couleur et la texture de ces délicieuses friandises. Pourquoi ? Parce que la science des marshmallows est une affaire sérieusement pas sérieuse !
+En utilisant des algorithmes de computer vision plus sophistiqués que nécessaire, nous analysons méticuleusement la couleur et la texture des marshmallows. Pourquoi ? Parce que la science des marshmallows est une affaire sérieusement pas sérieuse !
 
 Notre mission : sauver les soirées camping d'une catastrophe marshmallowesque et offrir enfin à l'humanité l'outil qu'elle ignorait désespérément attendre.
 
