@@ -124,6 +124,10 @@ Les performances varient selon les paramètres utilisés :
 - KNN : Les meilleures performances sont généralement obtenues avec k=5
 - CNN : L'enrichissement des données améliore considérablement les performances, surtout avec un enrichissement de niveau 20 ou 30
 
+Nos meilleurs résultats sont les suivants :
+- KNN : 76% de bonnes prédictions
+- CNN : 87% de bonnes prédictions
+
 ## Crédits
 
 Ce projet a été réalisé par :
