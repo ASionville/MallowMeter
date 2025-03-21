@@ -117,7 +117,7 @@ def run_test_knn(seeds=range(10), ratios_test=[0.1, 0.2, 0.3, 0.4, 0.5], k_value
         print(f"Ratio Test: {ratio_test}, K: {k}, Précision Moyenne: {mean_accuracy:.4f}")
     
     # Écrire les résultats dans un fichier CSV
-    with open('results.csv', mode='w', newline='') as file:
+    with open('evaluation/results_knn.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Seed", "Ratio Test", "K", "Accuracy"])
         writer.writerows(results)
@@ -314,7 +314,7 @@ def run_test_cnn(seeds=range(10), enrichissements=[0, 3, 5], ratios_test=[0.2],
         print(f"Enrichissement: {enrichissement}, Ratio Test: {ratio_test}, Précision Moyenne: {mean_accuracy:.4f}")
     
     # Écrire les résultats dans un fichier CSV
-    with open('results_cnn.csv', mode='w', newline='') as file:
+    with open('evaluation/results_cnn.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Seed", "Enrichissement", "Ratio Test", "Accuracy"])
         writer.writerows(results)
