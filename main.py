@@ -64,7 +64,7 @@ def run_test_knn(seeds=range(10), ratios_test=[0.1, 0.2, 0.3, 0.4, 0.5], k_value
                     predictions=predictions,
                     targets=test_labels,
                     class_names=class_names,
-                    save_dir="evaluation/individual" if log else None,  # Sauvegarder individuellement uniquement si log=True
+                    save_dir="evaluation/knn/individual" if log else None,  # Sauvegarder individuellement uniquement si log=True
                     model_name=model_name
                 )
                 
@@ -89,7 +89,7 @@ def run_test_knn(seeds=range(10), ratios_test=[0.1, 0.2, 0.3, 0.4, 0.5], k_value
     mean_results = []
     
     # Créer le répertoire pour les matrices moyennes
-    os.makedirs("evaluation/average", exist_ok=True)
+    os.makedirs("evaluation/knn/average", exist_ok=True)
     
     for ratio_test in ratios_test:
         for k in k_values:
@@ -101,7 +101,7 @@ def run_test_knn(seeds=range(10), ratios_test=[0.1, 0.2, 0.3, 0.4, 0.5], k_value
                 
                 # Calculer et sauvegarder la matrice de confusion moyenne pour ce couple (k, ratio)
                 if (k, ratio_test) in conf_matrices:
-                    avg_conf_save_path = f"evaluation/average/knn_k{k}_ratio{ratio_test}_avg_conf_matrix.png"
+                    avg_conf_save_path = f"evaluation/knn/average/knn_k{k}_ratio{ratio_test}_avg_conf_matrix.png"
                     avg_title = f"Matrice de confusion moyenne - k = {k}, ratio {int(100-ratio_test*100)}/{int(ratio_test*100)}"
                     avg_conf_matrix = plot_average_confusion_matrix(
                         conf_matrices[(k, ratio_test)], 
@@ -322,20 +322,66 @@ def run_test_cnn(seeds=range(10), enrichissements=[0, 3, 5], ratios_test=[0.2],
     print(f"Résultats enregistrés dans results_cnn.csv")
 
 if __name__ == "__main__":
-    run_test_knn(
-        seeds=range(100),
-        ratios_test=[0.1, 0.2, 0.3],
-        k_values=[3, 5, 7],
-        force_recompute=False,
-        log=False
-    )
+    import argparse
 
-    run_test_cnn(
-        seeds=range(10),
-        enrichissements=[10, 20, 30],
-        ratios_test=[0.3, 0.4, 0.5],
-        num_epochs=50,   # 50 époques maximum
-        patience=5,      # Arrêt après 5 époques sans amélioration
-        min_delta=0.001, # Amélioration minimale considérée significative
-        log=True
-    )
+    # Création du parseur d'arguments
+    parser = argparse.ArgumentParser(description='MallowMeter - Classification de marshmallows')
+    
+    # Arguments généraux
+    parser.add_argument('--model', type=str, choices=['knn', 'cnn'], required=True,
+                        help='Modèle à utiliser: knn ou cnn')
+    parser.add_argument('--seed', type=int, default=42,
+                        help='Graine pour la reproductibilité (défaut: 42)')
+    parser.add_argument('--ratio_test', type=float, default=0.2,
+                        help='Proportion de données pour le test (défaut: 0.2)')
+    parser.add_argument('--log', action='store_true',
+                        help='Activer les logs détaillés')
+    
+    # Arguments spécifiques au KNN
+    parser.add_argument('--k', type=int, default=5,
+                        help='Nombre de voisins pour KNN (défaut: 5)')
+    parser.add_argument('--force_recompute', action='store_true',
+                        help='Force le recalcul des features pour KNN')
+    
+    # Arguments spécifiques au CNN
+    parser.add_argument('--enrichissement', type=int, default=10,
+                        help='Niveau d\'enrichissement pour CNN (défaut: 10)')
+    parser.add_argument('--num_epochs', type=int, default=50,
+                        help='Nombre maximum d\'époques d\'entraînement (défaut: 50)')
+    parser.add_argument('--patience', type=int, default=5,
+                        help='Nombre d\'époques sans amélioration avant arrêt (défaut: 5)')
+    parser.add_argument('--min_delta', type=float, default=0.001,
+                        help='Amélioration minimale considérée significative (défaut: 0.001)')
+    parser.add_argument('--batch_size', type=int, default=16,
+                        help='Taille des batchs (défaut: 16)')
+    parser.add_argument('--learning_rate', type=float, default=0.001,
+                        help='Taux d\'apprentissage (défaut: 0.001)')
+    
+    # Analyse des arguments
+    args = parser.parse_args()
+    
+    # Création de la liste des seeds à utiliser
+    seeds = [args.seed]
+    
+    if args.model == 'knn':
+        run_test_knn(
+            seeds=seeds,
+            ratios_test=[args.ratio_test],
+            k_values=[args.k],
+            force_recompute=args.force_recompute,
+            log=args.log
+        )
+    elif args.model == 'cnn':
+        run_test_cnn(
+            seeds=seeds,
+            enrichissements=[args.enrichissement],
+            ratios_test=[args.ratio_test],
+            num_epochs=args.num_epochs,
+            batch_size=args.batch_size,
+            learning_rate=args.learning_rate,
+            patience=args.patience,
+            min_delta=args.min_delta,
+            log=args.log
+        )
+    
+    print(f"Analyse terminée pour le modèle {args.model} avec seed={args.seed}")
