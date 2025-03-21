@@ -270,11 +270,11 @@ def run_test_cnn(seeds=range(10), enrichissements=[0, 3, 5], ratios_test=[0.2],
                 )
                 
                 if log:
-                    print(f"\nSeed: {seed}, Enrichissement: {enrichissement}, "
-                          f"Ratio Test: {ratio_test}, Exactitude: {accuracy:.4f}")
-                    print(f"  Précision par classe: {eval_results['precision_per_class']}")
-                    print(f"  Rappel par classe: {eval_results['recall_per_class']}")
-                    print(f"  Indice de Jaccard par classe: {eval_results['jaccard_per_class']}")
+                    print(f"\nSeed: {seed}, Enrichissement: {enrichissement}, ")
+                    print(f"\tRatio Test: {ratio_test}, Exactitude: {accuracy:.4f}")
+                    print(f"\tPrécision par classe: {eval_results['precision_per_class']}")
+                    print(f"\tRappel par classe: {eval_results['recall_per_class']}")
+                    print(f"\tIndice de Jaccard par classe: {eval_results['jaccard_per_class']}")
                 
                 results.append([seed, enrichissement, ratio_test, accuracy])
                 pbar.update(1)
@@ -322,19 +322,20 @@ def run_test_cnn(seeds=range(10), enrichissements=[0, 3, 5], ratios_test=[0.2],
     print(f"Résultats enregistrés dans results_cnn.csv")
 
 if __name__ == "__main__":
-    # run_test_knn(
-    #     seeds=range(100),
-    #     ratios_test=[0.1, 0.2, 0.3],
-    #     k_values=[3, 5, 7],
-    #     force_recompute=False,
-    #     log=False
-    # )
+    run_test_knn(
+        seeds=range(100),
+        ratios_test=[0.1, 0.2, 0.3],
+        k_values=[3, 5, 7],
+        force_recompute=False,
+        log=False
+    )
+
     run_test_cnn(
         seeds=range(10),
         enrichissements=[10, 20, 30],
         ratios_test=[0.3, 0.4, 0.5],
-        num_epochs=50,  # 30 époques maximum
-        patience=5,    # Arrêt après 50 époques sans amélioration
-        min_delta=0.001,# Amélioration minimale considérée significative
+        num_epochs=50,   # 50 époques maximum
+        patience=5,      # Arrêt après 5 époques sans amélioration
+        min_delta=0.001, # Amélioration minimale considérée significative
         log=True
     )

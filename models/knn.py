@@ -44,7 +44,6 @@ class KNN:
         return winner
 
 if __name__ == "__main__":
-    # Générer des données pour l'exemple
     # Générer des données d'entraînement
     num_classes = 3
     points_per_class = 50
