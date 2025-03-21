@@ -103,3 +103,86 @@ def extract_features(images):
         ], device=image.device))
 
     return torch.stack(features)
+
+def faire_matrices_de_distances():
+    import os
+    import numpy as np
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    from load_database import load_dataset
+    from utils import load_or_compute_features
+    
+    # Créer le dossier pour stocker les matrices de distances s'il n'existe pas
+    os.makedirs("evaluation/matrices_de_distances", exist_ok=True)
+    
+    # Charger les données
+    dataset_path = "dataset/"
+    data, labels, ids = load_dataset(dataset_path)
+    print("Données chargées avec succès")
+    
+    # Charger ou calculer les caractéristiques
+    features, labels = load_or_compute_features(data, labels, force_recompute=False)
+    print("Caractéristiques extraites ou chargées avec succès")
+    
+    # Liste des caractéristiques avec leurs indices et titres
+    feature_params = {
+        0: ('b_skewness', 'Skewness b'),
+        1: ('l_std', 'Écart-type L'),
+        2: ('b_mean', 'Moyenne b'),
+        3: ('b_std', 'Écart-type b'),
+        4: ('b_contrast', 'Contraste b'),
+        5: ('b_homogeneity', 'Homogénéité b'),
+        6: ('l_entropy', 'Entropie L'),
+        7: ('b_entropy', 'Entropie b'),
+        8: ('l_energy', 'Énergie L'),
+        9: ('b_energy', 'Énergie b'),
+    }
+    
+    # Convertir les features en numpy pour faciliter les calculs
+    features_np = features.cpu().numpy()
+    labels_np = labels.cpu().numpy()
+    
+    # Pour chaque caractéristique, calculer la matrice de distance
+    for idx, (feature_name, title) in feature_params.items():
+        print(f"Calcul de la matrice de distance pour {title}...")
+        
+        # Extraire les valeurs de cette caractéristique pour toutes les images
+        feature_values = features_np[:, idx].reshape(-1, 1)
+        
+        # Calculer la matrice de distance L2
+        n_samples = feature_values.shape[0]
+        distance_matrix = np.zeros((n_samples, n_samples))
+        
+        for i in range(n_samples):
+            for j in range(n_samples):
+                # Distance L2 (euclidienne) entre les valeurs de caractéristique
+                distance_matrix[i, j] = np.sqrt(np.sum((feature_values[i] - feature_values[j]) ** 2))
+        
+        # Visualiser la matrice de distance
+        plt.figure(figsize=(10, 8))
+        
+        # Tri des échantillons par classe pour mieux visualiser les blocs
+        sort_idx = np.argsort(labels_np)
+        sorted_distance_matrix = distance_matrix[sort_idx][:, sort_idx]
+        sorted_labels = labels_np[sort_idx]
+        
+        # Créer la heatmap
+        ax = sns.heatmap(sorted_distance_matrix, cmap='viridis')
+        
+        # Ajouter des lignes pour délimiter les classes
+        class_boundaries = np.where(np.diff(sorted_labels) != 0)[0]
+        for boundary in class_boundaries:
+            plt.axhline(y=boundary + 0.5, color='red', linestyle='-', linewidth=1)
+            plt.axvline(x=boundary + 0.5, color='red', linestyle='-', linewidth=1)
+        
+        plt.title(f'Matrice de distance L2 - {title}')
+        plt.tight_layout()
+        
+        # Sauvegarder l'image
+        plt.savefig(f'evaluation/matrices_de_distances/{feature_name}.png')
+        plt.close()
+    
+    print("Toutes les matrices de distance ont été générées et enregistrées.")
+
+if __name__ == "__main__":
+    faire_matrices_de_distances()
