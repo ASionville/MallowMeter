@@ -1,5 +1,7 @@
 # MallowMeter
 
+![Mosaïque de marshmallows](images_readme/mosaique.jpg)
+
 ## Contexte et objectifs
 
 Avez-vous déjà fixé un marshmallow en vous demandant : "Mais QUEL est son degré exact de cuisson?" Nous aussi ! C'est pourquoi nous avons consacré des années de recherche intensive (bon, peut-être quelques semaines) à résoudre ce problème crucial qui empêchait l'humanité d'avancer.
