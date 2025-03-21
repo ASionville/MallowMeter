@@ -87,11 +87,17 @@ python main.py --model cnn --enrichissement 30 --patience 10 --num_epochs 100
 ## Modèles utilisés
 
 ### KNN (K-Nearest Neighbors)
-Le modèle KNN utilise des caractéristiques extraites des images comme :
-- Skewness de la composante b dans l'espace Lab
-- Écart-type des composantes L et b
-- Moyenne de la composante b
-- Contraste, homogénéité, entropie et énergie calculés à partir des matrices de co-occurrence
+Le modèle KNN utilise des caractéristiques extraites des images :
+1. **Skewness b** : Asymétrie de la composante b
+2. **Écart-type L** : Variabilité de la composante L
+3. **Moyenne b** : Moyenne de la composante b
+4. **Écart-type b** : Variabilité de la composante b
+5. **Contraste b** : Contraste de la composante b
+6. **Homogénéité b** : Homogénéité de la composante b
+7. **Entropie L** : Mesure de désordre de la composante L
+8. **Entropie b** : Mesure de désordre de la composante b
+9. **Énergie L** : Uniformité de la composante L
+10. **Énergie b** : Uniformité de la composante b
 
 ### CNN (Convolutional Neural Network)
 Architecture :
