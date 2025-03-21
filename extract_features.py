@@ -122,6 +122,7 @@ def faire_matrices_de_distances():
     
     # Charger ou calculer les caractéristiques
     features, labels = load_or_compute_features(data, labels, force_recompute=False)
+
     print("Caractéristiques extraites ou chargées avec succès")
     
     # Liste des caractéristiques avec leurs indices et titres
@@ -131,11 +132,12 @@ def faire_matrices_de_distances():
         2: ('b_mean', 'Moyenne b'),
         3: ('b_std', 'Écart-type b'),
         4: ('b_contrast', 'Contraste b'),
-        5: ('b_homogeneity', 'Homogénéité b'),
-        6: ('l_entropy', 'Entropie L'),
-        7: ('b_entropy', 'Entropie b'),
-        8: ('l_energy', 'Énergie L'),
-        9: ('b_energy', 'Énergie b'),
+        5: ('lomogeneity', 'Homogénéité L'),
+        6: ('bomogeneity', 'Homogénéité b'),
+        7: ('l_entropy', 'Entropie L'),
+        8: ('b_entropy', 'Entropie b'),
+        9: ('l_energy', 'Énergie L'),
+        10: ('b_energy', 'Énergie b'),
     }
     
     # Convertir les features en numpy pour faciliter les calculs

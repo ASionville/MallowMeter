@@ -6,7 +6,7 @@ from extract_features import extract_features
 
 # Chemins pour la sauvegarde des features
 FEATURES_PATH = "features/"
-FEATURES_FILE = os.path.join(FEATURES_PATH, "precomputed_features_old.pkl")
+FEATURES_FILE = os.path.join(FEATURES_PATH, "precomputed_features.pkl")
 
 def load_or_compute_features(data, labels, force_recompute=False):
     """
