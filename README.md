@@ -1,6 +1,9 @@
 # MallowMeter
 
-![Mosaïque de marshmallows](images_readme/mosaique.jpg)
+<br>
+<div align="center">
+    <img src="https://raw.githubusercontent.com/ASionville/MallowMeter/refs/heads/main/images_readme/mosaique.jpg" width="40%">
+</div>
 
 ## Contexte et objectifs
 
