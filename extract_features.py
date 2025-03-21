@@ -1,7 +1,12 @@
+import os
+import numpy as np
 import torch
+import seaborn as sns
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from tqdm import tqdm
+from load_database import load_dataset
 
 # Calculer la matrice de co-occurrence pour un canal donné
 def co_occurrence_matrix(channel, distance=1, direction="horizontal"): # Direction : "horizontal" ou "vertical"
@@ -105,11 +110,6 @@ def extract_features(images):
     return torch.stack(features)
 
 def faire_matrices_de_distances():
-    import os
-    import numpy as np
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-    from load_database import load_dataset
     from utils import load_or_compute_features
     
     # Créer le dossier pour stocker les matrices de distances s'il n'existe pas
@@ -169,13 +169,13 @@ def faire_matrices_de_distances():
         sorted_labels = labels_np[sort_idx]
         
         # Créer la heatmap
-        ax = sns.heatmap(sorted_distance_matrix, cmap='viridis')
+        ax = sns.heatmap(sorted_distance_matrix, cmap='plasma')
         
         # Ajouter des lignes pour délimiter les classes
         class_boundaries = np.where(np.diff(sorted_labels) != 0)[0]
         for boundary in class_boundaries:
-            plt.axhline(y=boundary + 0.5, color='red', linestyle='-', linewidth=1)
-            plt.axvline(x=boundary + 0.5, color='red', linestyle='-', linewidth=1)
+            plt.axhline(y=boundary + 0.5, color='white', linestyle='--', linewidth=2)
+            plt.axvline(x=boundary + 0.5, color='white', linestyle='--', linewidth=2)
         
         plt.title(f'Matrice de distance L2 - {title}')
         plt.tight_layout()
