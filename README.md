@@ -5,6 +5,16 @@
     <img src="https://raw.githubusercontent.com/ASionville/MallowMeter/refs/heads/main/images_readme/mosaique.jpg" width="40%">
 </div>
 
+## Auteurs
+
+Ce projet a été réalisé par :
+- [Maxime JOURNOUD](https://github.com/DCucube)
+- [Lucas LESCURE](https://github.com/FluffLescure)
+- [Aubin SIONVILLE](https://github.com/ASionville)
+- [Ruben VERCHERE](https://github.com/RubenVerchere)
+
+Nous tenons à remercier l'équipe pédagogique de TSE pour leur accompagnement
+
 ## Contexte et objectifs
 
 Avez-vous déjà fixé un marshmallow en vous demandant : "Mais quel est son degré exact de cuisson ??" Nous aussi ! C'est pourquoi nous avons consacré des années de recherche intensive (bon, peut-être quelques semaines) à résoudre ce problème crucial qui empêchait l'humanité d'avancer.
@@ -127,17 +137,3 @@ Les performances varient selon les paramètres utilisés :
 Nos meilleurs résultats sont les suivants :
 - KNN : 76% de bonnes prédictions
 - CNN : 87% de bonnes prédictions
-
-## Crédits
-
-Ce projet a été réalisé par :
-- [Maxime JOURNOUD](https://github.com/DCucube)
-- [Lucas LESCURE](https://github.com/FluffLescure)
-- [Aubin SIONVILLE](https://github.com/ASionville)
-- [Ruben VERCHERE](https://github.com/RubenVerchere)
-
-
-Nous tenons à remercier l'équipe pédagogique de TSE pour leur accompagnement
-
----
-© 2025 MallowMeter - Télécom Saint-Étienne
